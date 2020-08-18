@@ -5,9 +5,12 @@ const rootConfig = require(`${root}/jest.config.js`);
 
 // flag --runInBand para executar os testes em ordem
 
-module.exports = {...rootConfig, ...{
-  rootDir: root,
-  displayName: "end2end-tests", // label para teste e2e
-  setupFilesAfterEnv: ["<rootDir>/test/jest-setup.ts"],
-  testMatch: ["<rootDir>/test/**/*.test.ts"],
-}}
+module.exports = {
+  ...rootConfig,
+  ...{
+    rootDir: root,
+    displayName: 'end2end-tests', // label para teste e2e
+    setupFilesAfterEnv: ['<rootDir>/test/jest-setup.ts'],
+    testMatch: ['<rootDir>/test/**/*.test.ts'],
+  },
+};

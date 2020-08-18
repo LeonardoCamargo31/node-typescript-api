@@ -1,10 +1,12 @@
-describe('Beach forecast functional tests', () => {
-  it('should return a forecast with just a few times', async () => {
-    // global.testRequest é igual a supertest(app)
-    // agora global.testRequest pega nosso type criado em globals.d.ts
-    const { body, status } = await global.testRequest.get('/forecast');
-    expect(status).toBe(200);
-    expect(body).toEqual([
+import { Controller, Get } from '@overnightjs/core';
+import { Request, Response } from 'express';
+
+// automaticamente vai ter uma rota /forecast
+@Controller('forecast')
+export class ForecastController {
+  @Get('')
+  public getForecastForLoggedUser(_: Request, res: Response): void {
+    res.send([
       {
         time: '2020-04-26T00:00:00+00:00',
         forecast: [
@@ -44,5 +46,5 @@ describe('Beach forecast functional tests', () => {
         ],
       },
     ]);
-  });
-});
+  }
+}

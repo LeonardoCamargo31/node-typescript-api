@@ -8,7 +8,8 @@ module.exports = {
   testEnvironment: 'node',
   clearMocks: true, // limpar mocks por padrão
   preset: 'ts-jest',
-  moduleNameMapper: { // para usar o alias nos testes também
+  moduleNameMapper: {
+    // para usar o alias nos testes também
     '@src/(.*)': '<rootDir>/src/$1',
     '@test/(.*)': '<rootDir>/test/$1',
   },
