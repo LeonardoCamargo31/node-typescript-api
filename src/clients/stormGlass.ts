@@ -48,7 +48,12 @@ export class StormGlass {
     // passo um tipo, e ele responde uma promise com o teu tipo
     // basta passar nosso tipo
     const response = await this.request.get<StormGlassForecastResponse>(
-      `https://api.stormglass.io/v2/weather/point?lat=${lat}&lng=${lng}&params=${this.stormGlassAPIParams}&source=${this.stormGlassAPISource}`
+      `https://api.stormglass.io/v2/weather/point?lat=${lat}&lng=${lng}&params=${this.stormGlassAPIParams}&source=${this.stormGlassAPISource}`,
+      {
+        headers: {
+          Authorization: 'fake-token',
+        },
+      }
     );
     return this.normalizeResponse((await response).data);
   }
@@ -73,6 +78,8 @@ export class StormGlass {
   }
 
   // todas as chaves podem ser nulas
+  // Partial transforma todas as props da interface como opcional
+  // força a validar todas elas
   private isValidPoint(point: Partial<StormGlassPoint>): boolean {
     return !!(
       point.time &&

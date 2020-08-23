@@ -8,6 +8,11 @@ import * as stormglassWeatherPointFixture from '@test/fixtures/stormglass_weathe
 jest.mock('axios');
 
 describe('StormGlass client', () => {
+  // dizer que essa instância ele é um tipo de mock
+  // temos um mock não tipado, e precisamos criar isso
+  // as forçando o typescript a inferir/conclusão/deduzir esse tipo
+  const mockedAxios = axios as jest.Mocked<typeof axios>;
+
   // vir um forecast normalizado do StormGlass
   // esse client faz um fetch dos dados e normalize
   // normalizar: da maneira que vem da API pra como espero na minha aplicação
@@ -16,11 +21,11 @@ describe('StormGlass client', () => {
     const lng = 151.289824;
 
     // substituímos o get por esse valor
-    axios.get = jest
+    mockedAxios.get = jest
       .fn()
       .mockResolvedValue({ data: stormglassWeatherPointFixture });
 
-    const stormGlass = new StormGlass(axios);
+    const stormGlass = new StormGlass(mockedAxios);
     const response = await stormGlass.fetchPoints(lat, lng);
     expect(response).toEqual(stormglassNormalizedResponseFixture);
   });
