@@ -1,7 +1,7 @@
 import { AxiosStatic } from 'axios';
+import { InternalError } from '@src/util/errors/internal-error';
 
 // interface para descrever objetos/shape de dados
-
 // chave fica dinâmica
 // "noaa": 64.26
 export interface StormGlassPointSource {
@@ -35,6 +35,24 @@ export interface ForecastPoint {
   windSpeed: number;
 }
 
+// erro interno, erro na requisição
+export class ClientRequestError extends InternalError {
+  constructor(message: string) {
+    const internalMessage =
+      'Unexpected error when trying to communicate to StormGlass';
+    super(`${internalMessage}: ${message}`);
+  }
+}
+
+// erro da api externa
+export class StormGlassResponseError extends InternalError {
+  constructor(message: string) {
+    const internalMessage =
+      'Unexpected error returned by the StormGlass service';
+    super(`${internalMessage}: ${message}`);
+  }
+}
+
 export class StormGlass {
   readonly stormGlassAPISource = 'noaa';
   readonly stormGlassAPIParams =
@@ -44,18 +62,30 @@ export class StormGlass {
   constructor(protected request: AxiosStatic) {}
 
   public async fetchPoints(lat: number, lng: number): Promise<ForecastPoint[]> {
-    // get<T = any, R = AxiosResponse<T>>
-    // passo um tipo, e ele responde uma promise com o teu tipo
-    // basta passar nosso tipo
-    const response = await this.request.get<StormGlassForecastResponse>(
-      `https://api.stormglass.io/v2/weather/point?lat=${lat}&lng=${lng}&params=${this.stormGlassAPIParams}&source=${this.stormGlassAPISource}`,
-      {
-        headers: {
-          Authorization: 'fake-token',
-        },
+    try {
+      // get<T = any, R = AxiosResponse<T>>
+      // passo um tipo, e ele responde uma promise com o teu tipo
+      // basta passar nosso tipo
+      const response = await this.request.get<StormGlassForecastResponse>(
+        `https://api.stormglass.io/v2/weather/point?lat=${lat}&lng=${lng}&params=${this.stormGlassAPIParams}&source=${this.stormGlassAPISource}`,
+        {
+          headers: {
+            Authorization: 'fake-token',
+          },
+        }
+      );
+      return this.normalizeResponse((await response).data);
+    } catch (err) {
+      // Isso é lidar com os erros do Axios especificamente
+      if (err.response && err.response.status) {
+        throw new StormGlassResponseError(
+          `Error: ${JSON.stringify(err.response.data)} Code: ${
+            err.response.status
+          }`
+        );
       }
-    );
-    return this.normalizeResponse((await response).data);
+      throw new ClientRequestError(err.message);
+    }
   }
 
   // normalizar nossa resposta
