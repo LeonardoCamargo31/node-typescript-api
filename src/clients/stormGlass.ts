@@ -1,5 +1,6 @@
 import { AxiosStatic } from 'axios';
 import { InternalError } from '@src/util/errors/internal-error';
+import config, { IConfig } from 'config';
 
 // interface para descrever objetos/shape de dados
 // chave fica dinâmica
@@ -53,6 +54,10 @@ export class StormGlassResponseError extends InternalError {
   }
 }
 
+const stormGlassResourceConfig: IConfig = config.get(
+  'App.resources.StormGlass'
+);
+
 export class StormGlass {
   readonly stormGlassAPISource = 'noaa';
   readonly stormGlassAPIParams =
@@ -67,10 +72,15 @@ export class StormGlass {
       // passo um tipo, e ele responde uma promise com o teu tipo
       // basta passar nosso tipo
       const response = await this.request.get<StormGlassForecastResponse>(
-        `https://api.stormglass.io/v2/weather/point?lat=${lat}&lng=${lng}&params=${this.stormGlassAPIParams}&source=${this.stormGlassAPISource}`,
+        `${stormGlassResourceConfig.get(
+          'apiUrl'
+        )}/weather/point?lat=${lat}&lng=${lng}&params=${
+          this.stormGlassAPIParams
+        }&source=${this.stormGlassAPISource}`,
         {
           headers: {
-            Authorization: 'fake-token',
+            Authorization: stormGlassResourceConfig.get('apiToken'),
+            // Authorization: 'fake-token',
           },
         }
       );
